@@ -34,9 +34,9 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
 //下面给出两个账号的填写示例（iOS只支持2个京东账号）
 let shareCodes = [ // IOS本地脚本用户这个列表填入你要助力的好友的shareCode
                    //账号一的好友shareCode,不同好友的shareCode中间用@符号隔开
-  '66j4yt3ebl5ierjljoszp7e4izzbzaqhi5k2unz2afwlyqsgnasq@olmijoxgmjutyrsovl2xalt2tbtfmg6sqldcb3q@e7lhibzb3zek27amgsvywffxx7hxgtzstrk2lba@e7lhibzb3zek32e72n4xesxmgc2m76eju62zk3y',
+  
   //账号二的好友shareCode,不同好友的shareCode中间用@符号隔开
-  '4npkonnsy7xi3p6pjfxg6ct5gll42gmvnz7zgoy@6dygkptofggtp6ffhbowku3xgu@mlrdw3aw26j3wgzjipsxgonaoyr2evrdsifsziy',
+  '',
 ]
 let currentRoundId = null;//本期活动id
 let lastRoundId = null;//上期id
@@ -354,38 +354,7 @@ function showTaskProcess() {
     resolve()
   })
 }
-//助力好友
-async function doHelp() {
-  for (let plantUuid of newShareCodes) {
-    console.log(`开始助力京东账号${$.index} - ${$.nickName}的好友: ${plantUuid}`);
-    if (!plantUuid) continue;
-    if (plantUuid === $.myPlantUuid) {
-      console.log(`\n跳过自己的plantUuid\n`)
-      continue
-    }
-    console.log(`\n开始助力好友: ${plantUuid}`);
-    await helpShare(plantUuid);
-    if ($.helpResult.code === '0') {
-      // console.log(`助力好友结果: ${JSON.stringify($.helpResult.data.helpShareRes)}`);
-      if ($.helpResult.data.helpShareRes) {
-        if ($.helpResult.data.helpShareRes.state === '1') {
-          console.log(`助力好友${plantUuid}成功`)
-          console.log(`${$.helpResult.data.helpShareRes.promptText}\n`);
-        } else if ($.helpResult.data.helpShareRes.state === '2') {
-          console.log('您今日助力的机会已耗尽，已不能再帮助好友助力了\n');
-          break;
-        } else if ($.helpResult.data.helpShareRes.state === '3') {
-          console.log('该好友今日已满9人助力/20瓶营养液,明天再来为Ta助力吧\n')
-        } else if ($.helpResult.data.helpShareRes.state === '4') {
-          console.log(`${$.helpResult.data.helpShareRes.promptText}\n`)
-        } else {
-          console.log(`助力其他情况：${JSON.stringify($.helpResult.data.helpShareRes)}`);
-        }
-      }
-    } else {
-      console.log(`助力好友失败: ${JSON.stringify($.helpResult)}`);
-    }
-  }
+ 
 }
 function showMsg() {
   $.log(`\n${message}\n`);
@@ -483,58 +452,7 @@ async function plantShareSupportList() {
     console.log(`异常情况：${JSON.stringify($.shareSupportList)}`)
   }
 }
-//助力好友的api
-async function helpShare(plantUuid) {
-  const body = {
-    "plantUuid": plantUuid,
-    "wxHeadImgUrl": "",
-    "shareUuid": "",
-    "followType": "1",
-  }
-  $.helpResult = await request(`plantBeanIndex`, body);
-}
-async function plantBeanIndex() {
-  $.plantBeanIndexResult = await request('plantBeanIndex');//plantBeanIndexBody
-}
-function readShareCode() {
-  return new Promise(resolve => {
-    $.get({url: `http://api.turinglabs.net/api/v1/jd/bean/read/${randomCount}/`}, (err, resp, data) => {
-      try {
-        if (err) {
-          console.log(`${JSON.stringify(err)}`)
-          console.log(`${$.name} API请求失败，请检查网路重试`)
-        } else {
-          if (data) {
-            console.log(`随机取个${randomCount}码放到您固定的互助码后面`)
-            data = JSON.parse(data);
-          }
-        }
-      } catch (e) {
-        $.logErr(e, resp)
-      } finally {
-        resolve(data);
-      }
-    })
-  })
-}
-//格式化助力码
-function shareCodesFormat() {
-  return new Promise(async resolve => {
-    // console.log(`第${$.index}个京东账号的助力码:::${jdPlantBeanShareArr[$.index - 1]}`)
-    newShareCodes = [];
-    if (jdPlantBeanShareArr[$.index - 1]) {
-      newShareCodes = jdPlantBeanShareArr[$.index - 1].split('@');
-    } else {
-      console.log(`由于您第${$.index}个京东账号未提供shareCode,将采纳本脚本自带的助力码\n`)
-      const tempIndex = $.index > shareCodes.length ? (shareCodes.length - 1) : ($.index - 1);
-      newShareCodes = shareCodes[tempIndex].split('@');
-    }
-    const readShareCodeRes = await readShareCode();
-    if (readShareCodeRes && readShareCodeRes.code === 200) {
-      newShareCodes = [...new Set([...newShareCodes, ...(readShareCodeRes.data || [])])];
-    }
-    console.log(`第${$.index}个京东账号将要助力的好友${JSON.stringify(newShareCodes)}`)
-    resolve();
+// 
   })
 }
 function requireConfig() {
