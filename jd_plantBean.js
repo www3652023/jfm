@@ -354,15 +354,6 @@ function showTaskProcess() {
     resolve()
   })
 }
- 
-}
-function showMsg() {
-  $.log(`\n${message}\n`);
-  jdNotify = $.getdata('jdPlantBeanNotify') ? $.getdata('jdPlantBeanNotify') : jdNotify;
-  if (!jdNotify || jdNotify === 'false') {
-    $.msg($.name, subTitle, message);
-  }
-}
 // ================================================此处是API=================================
 //每轮种豆活动获取结束后,自动收取京豆
 async function getReward() {
